@@ -3,73 +3,77 @@
 #include <string>
 #include <list>
 #include <algorithm>
+#include <vector>
 using namespace std;
+vector<string> split(string str, char del) {
+    vector<string> result;
+    str += del;
+    int pos = str.find(del);
+    while (pos != string::npos)
+    {
+        result.push_back(str.substr(0, pos));
+        str.erase(0, pos + 1);
+        pos = str.find(del);
+    }
+    return result;
+}
+vector<int> splitNums(string str, char del)
+{
+    vector<int> result;
+    str += del;
+    int pos = str.find(del);
+
+    while (pos != string::npos)
+    {
+        int num = stoi(str.substr(0, pos));
+        result.push_back(num);
+        str.erase(0, pos + 1);
+        pos = str.find(del);
+    }
+    return result;
+}
 int main() {
     string line;
     while (getline(cin, line)) {
-        char del = ';';
-        int pos = line.find(del);
-        std::list <string> lines;
-        line+=del;
-        while (pos != string::npos)
+        vector<string> input = split(line, ';');
+        vector<vector<int>> lines;
+        for (int i = 0; i < input.capacity(); i++)
         {
-            lines.push_front(line.substr(0, pos));
-            line.erase(0, pos + 1);
-            pos = line.find(del);
-        }
-        std::list <int> A;
-        std::list <int> B;
-        for (int i = 0; i < lines.size() + 1; i++)
-        {
-            string temp = lines.front();
-            lines.pop_front();
-            char del = ',';
-            temp += del;
-            int pos = temp.find(del);
-            while (pos != string::npos)
-            {
-                int num = stoi(temp.substr(0, pos));
-                if (i == 0)
-                {
-                    A.push_front(num);
-                }
-                else {
-                    B.push_front(num);
-                }
-                temp.erase(0, pos + 1);
-                pos = temp.find(del);
-            }
+            lines.push_back(splitNums(input.front(), ','));
+            input.erase(input.begin());
         }
         std::list<int> result;
-            if (A.size() > B.size())
-            {
-                for (list<int>::iterator it = A.begin(); it != A.end(); ++it)
-                {
-                    auto found = std::find(B.begin(), B.end(), *it);
-                    if (found != B.end())
-                    {
-                        result.push_front(*it);
-					}
-                }
+        int maxIndex = 0;
+        auto maxLength = lines[0].size(); 
+
+        for (int i = 1; i < lines.size(); ++i) {
+            if (lines[i].size() > maxLength) {
+                maxLength = lines[i].size();
+                maxIndex = i;
             }
-            else
+        }
+        for (int i = 0; i < lines.size(); i++)
+        {
+            if (i != maxIndex)
             {
-                for (list<int>::iterator it = B.begin(); it != B.end(); ++it)
+                for (auto it = lines[maxIndex].begin(); it != lines[maxIndex].end(); ++it)
                 {
-                    auto found = std::find(A.begin(), A.end(), *it);
-                    if (found != A.end())
+                    auto found = std::find(lines[i].begin(), lines[i].end(), *it);
+                    if (found != lines[i].end())
                     {
                         result.push_front(*it);
                     }
                 }
             }
+        }
             result.sort();
             for (list<int>::iterator it = result.begin(); it != result.end(); ++it)
             {
                 if (it != result.begin()) cout << ",";
                 cout << *it;
 			}
-
+			cout << endl;
     }
     return 0;
 }
+
